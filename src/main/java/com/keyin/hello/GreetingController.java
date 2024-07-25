@@ -1,45 +1,88 @@
 package com.keyin.hello;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@CrossOrigin
+@RequestMapping("/greetings")
 public class GreetingController {
+
     @Autowired
     private GreetingService greetingService;
 
-    @GetMapping("search_greeting")
-    public List<Greeting> searchGreeting(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "greeting", required = false) String greeting) {
-        return greetingService.findGreetingsByNameAndGreeting(name, greeting);
+    @GetMapping("/{id}")
+    public ResponseEntity<Greeting> getGreeting(@PathVariable long id) {
+        Greeting greeting = greetingService.getGreeting(id);
+        if (greeting == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(greeting);
     }
 
-    @GetMapping("greetings")
-    public List<Greeting> getAllGreetings() {
-        return greetingService.getAllGreetings();
+    @GetMapping
+    public ResponseEntity<List<Greeting>> getAllGreetings() {
+        List<Greeting> greetings = greetingService.getAllGreetings();
+        return ResponseEntity.ok(greetings);
     }
 
-    @GetMapping("greeting/{index}")
-    public Greeting getGreeting(@PathVariable Integer index) {
-        return greetingService.getGreeting(index);
+    @PostMapping
+    public ResponseEntity<Greeting> createGreeting(@RequestBody Greeting newGreeting) {
+        Greeting createdGreeting = greetingService.createGreeting(newGreeting);
+        return ResponseEntity.ok(createdGreeting);
     }
 
-    @PostMapping("greeting")
-    public Greeting createGreeting(@RequestBody Greeting newGreeting) {
-        return greetingService.createGreeting(newGreeting);
+    @PutMapping("/{id}")
+    public ResponseEntity<Greeting> updateGreeting(@PathVariable long id, @RequestBody Greeting updatedGreeting) {
+        Greeting greeting = greetingService.updateGreeting(id, updatedGreeting);
+        if (greeting == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(greeting);
     }
 
-    @PutMapping("greeting/{index}")
-    public Greeting updateGreeting(@PathVariable Integer index, @RequestBody Greeting updatedGreeting) {
-        return greetingService.updateGreeting(index, updatedGreeting);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteGreeting(@PathVariable long id) {
+        greetingService.deleteGreeting(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("greeting/{index}")
-    public void deleteGreeting(@PathVariable Integer index) {
-        greetingService.deleteGreeting(index);
+    @GetMapping("/search")
+    public ResponseEntity<List<Greeting>> findGreetingsByNameAndGreeting(@RequestParam String name, @RequestParam String greetingName) {
+        List<Greeting> greetings = greetingService.findGreetingsByNameAndGreeting(name, greetingName);
+        return ResponseEntity.ok(greetings);
+    }
+
+    static class GreetingRequest {
+        private String name;
+        private String greeting;
+        private List<String> languages;
+        
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getGreeting() {
+            return greeting;
+        }
+
+        public void setGreeting(String greeting) {
+            this.greeting = greeting;
+        }
+
+        public List<String> getLanguages() {
+            return languages;
+        }
+
+        public void setLanguages(List<String> languages) {
+            this.languages = languages;
+        }
     }
 }
