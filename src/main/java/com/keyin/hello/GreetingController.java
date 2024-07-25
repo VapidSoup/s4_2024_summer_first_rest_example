@@ -59,7 +59,6 @@ public class GreetingController {
         private String name;
         private String greeting;
         private List<String> languages;
-        
 
         public String getName() {
             return name;
